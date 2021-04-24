@@ -14,6 +14,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/date-picker" />
             <option value="$PROJECT_DIR$/line-view" />
             <option value="$PROJECT_DIR$/retrofit" />
             <option value="$PROJECT_DIR$/subscripted-text-view" />

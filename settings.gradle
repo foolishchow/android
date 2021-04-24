@@ -1,3 +1,4 @@
+include ':date-picker'
 include ':subscripted-text-view'
 include ':line-view'
 include ':retrofit'
