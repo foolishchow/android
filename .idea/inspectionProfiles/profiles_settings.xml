@@ -1,0 +1,24 @@
+<component name="InspectionProjectProfileManager">
+  <settings>
+    <info color="525229">
+      <option name="FONT_TYPE" value="2" />
+      <option name="EFFECT_COLOR" value="aaaaaa" />
+      <option name="EFFECT_TYPE" value="1" />
+      <option name="myName" value="CanBeRemove" />
+      <option name="myVal" value="50" />
+      <option name="myExternalName" value="CanBeRemove" />
+      <option name="myDefaultAttributes" />
+    </info>
+    <info color="8a0fd6">
+      <option name="EFFECT_COLOR" value="8a0fd6" />
+      <option name="ERROR_STRIPE_COLOR" value="8a0fd6" />
+      <option name="EFFECT_TYPE" value="4" />
+      <option name="myName" value="NeedToResolve" />
+      <option name="myVal" value="50" />
+      <option name="myExternalName" value="NeedToResolve" />
+      <option name="myDefaultAttributes">
+        <option name="ERROR_STRIPE_COLOR" value="8a0fd6" />
+      </option>
+    </info>
+  </settings>
+</component>

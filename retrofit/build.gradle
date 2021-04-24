@@ -2,7 +2,7 @@ plugins {
     id 'com.android.library'
     id 'com.github.dcendents.android-maven'
 }
-
+group = 'com.github.foolishchow'
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
@@ -37,4 +37,3 @@ dependencies {
     api "androidx.annotation:annotation:1.1.0"
 }
 
-group = 'com.github.foolishchow'

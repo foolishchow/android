@@ -1,3 +1,5 @@
+include ':subscripted-text-view'
+include ':line-view'
 include ':retrofit'
 include ':app'
 rootProject.name = "android"
