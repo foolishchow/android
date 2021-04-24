@@ -5,10 +5,11 @@
 ![screenshot](./screenshot/screenshot.jpg)   
 
 ## use
-[![Download](https://api.bintray.com/packages/foolishchow/android/SubScriptedTextView/images/download.svg) ](https://bintray.com/foolishchow/android/SubScriptedTextView/_latestVersion)
+[![Download](https://jitpack.io/v/foolishchow/android/subscripted-text-view.svg) ]
+(https://jitpack.io/#foolishchow/android/subscripted-text-view)
 
 ```gradle
-implementation 'com.github.foolishchow.android.subscripted-text-view:@version'
+implementation 'com.github.foolishchow.android:subscripted-text-view:@version'
 ```
 
 ## sample code
