@@ -8,21 +8,44 @@ import me.foolishchow.android.datepicker.data.DateWheelVo
  * Author: foolishchow
  * Date: 2021/05/12 2:55 PM
  */
-class LunarWheelAdapter
-@JvmOverloads
-constructor() : WheelAdapter<DateWheelVo> {
+class LunarWheelAdapter : WheelAdapter<DateWheelVo> {
     private val mList = mutableListOf<DateWheelVo>()
     override fun getItemsCount(): Int {
-        TODO("Not yet implemented")
+        return mList.size
+    }
+
+    private var start: Int = 0;
+    private var end: Int = 0;
+    fun rangeChanged(from: Int, to: Int): Boolean {
+        if (start != from || to != end) {
+            start = from
+            end = to
+            return true
+        }
+        return false
+    }
+
+    fun getItemIndex(value: Int): Int {
+        return value - start
+    }
+
+    fun reRange(list: List<DateWheelVo>) {
+        mList.clear()
+        mList.addAll(list)
     }
 
     override fun getItem(index: Int): DateWheelVo {
-        TODO("Not yet implemented")
+        return if (index < 0 || index >= itemsCount) {
+            mDefault
+        } else mList[index]
     }
 
     override fun indexOf(o: DateWheelVo?): Int {
-        TODO("Not yet implemented")
+        return mList.indexOf(o)
     }
 
+    companion object {
+        var mDefault = DateWheelVo("01", 0)
+    }
 
 }

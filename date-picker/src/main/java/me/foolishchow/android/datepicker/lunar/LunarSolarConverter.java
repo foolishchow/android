@@ -140,12 +140,19 @@ public class LunarSolarConverter {
         int y = GetBitInt(solar11, 12, 9);
         int m = GetBitInt(solar11, 4, 5);
         int d = GetBitInt(solar11, 5, 0);
-
-        return SolarFromInt(SolarToInt(y, m, d) + offset - 1);
+        Solar solar = SolarFromInt(SolarToInt(y, m, d) + offset - 1);
+        solar.hour = lunar.hour;
+        solar.minute = lunar.minute;
+        solar.second = lunar.second;
+        return solar;
     }
 
     public static Lunar SolarToLunar(Solar solar) {
         Lunar lunar = new Lunar();
+        lunar.hour = solar.hour;
+        lunar.minute = solar.minute;
+        lunar.second = solar.second;
+
         int index = solar.solarYear - solar_1_1[0];
         int data = (solar.solarYear << 9) | (solar.solarMonth << 5)
                 | (solar.solarDay);

@@ -18,13 +18,29 @@ class Solar
 @JvmOverloads
 constructor(
         @JvmField
-        var solarDay: Int = 0,
+        var solarYear: Int = 0,
         @JvmField
         var solarMonth: Int = 0,
         @JvmField
-        var solarYear: Int = 0
+        var solarDay: Int = 0
 ) {
     fun toDate(): Date {
         return Utils.asDate(solarYear, solarMonth, solarDay)
+    }
+
+    @JvmField
+    var hour: Int = 0
+
+    @JvmField
+    var minute: Int = 0
+
+    @JvmField
+    var second: Int = 0
+
+    @JvmOverloads
+    fun setTime(hourOfDay: Int = 0, minute: Int = 0, second: Int = 0) {
+        this.hour = hourOfDay
+        this.minute = minute
+        this.second = second
     }
 }

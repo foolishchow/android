@@ -1,4 +1,4 @@
-package me.foolishchow.android.datepicker;
+package me.foolishchow.android.datepicker.validator;
 
 import androidx.annotation.NonNull;
 
@@ -7,7 +7,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class DateTimeValidator {
+import me.foolishchow.android.datepicker.Utils;
+
+public class DateTimeValidator implements IDateValidator{
     private final int[] mRangeStart = new int[]{1990, 1, 1, 0, 0, 0};
     private final int[] mRangeEnd = new int[]{2100, 12, 31, 23, 59, 59};
     private final int[] mSelected = new int[]{1990, 1, 1, 0, 0, 0};
@@ -24,7 +26,7 @@ public class DateTimeValidator {
         array[5] = calendar.get(Calendar.SECOND);
     }
 
-    public void setRangDate(@NonNull Calendar startDate, @NonNull Calendar endDate) {
+    public void setRangeDate(@NonNull Calendar startDate, @NonNull Calendar endDate) {
         updateDateArray(mRangeStart, startDate);
         updateDateArray(mRangeEnd, endDate);
         mRangeCurrent[0][0] = mRangeStart[0];
@@ -190,24 +192,7 @@ public class DateTimeValidator {
         this.mValidatedListener = listener;
     }
 
-    public interface ValidatedListener {
-        void onDateTimeValidated(
-                @NonNull ValidateResult year, @NonNull ValidateResult month, @NonNull ValidateResult dayOfMonth,
-                @NonNull ValidateResult hourOfDay, @NonNull ValidateResult minute, @NonNull ValidateResult second
-        );
-    }
 
-    public static class ValidateResult {
-        public final int rangeStart;
-        public final int rangeEnd;
-        public final int current;
-
-        public ValidateResult(int rangeStart, int rangeEnd, int current) {
-            this.rangeStart = rangeStart;
-            this.rangeEnd = rangeEnd;
-            this.current = current;
-        }
-    }
     //endregion
 
 

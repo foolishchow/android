@@ -1,9 +1,8 @@
 package me.foolishchow.android.datepicker.options
 
+import me.foolishchow.android.datepicker.DateStyle
 import me.foolishchow.android.datepicker.OnDatePickerSelectListener
 import me.foolishchow.android.datepicker.Utils
-import me.foolishchow.android.datepicker.WheelTime
-import me.foolishchow.android.datepicker.WheelTime.DateStyle
 import java.util.*
 
 /**
@@ -18,9 +17,9 @@ open class DatePickerOption {
     var rangeEnd: Calendar = sMaxRangeEnd
         internal set
 
-    @get:DateStyle
-    @DateStyle
-    var style = WheelTime.STYLE_DATE
+    @get:DateStyle.Style
+    @DateStyle.Style
+    var style = DateStyle.STYLE_DATE
         internal set
     var selected: Calendar = Calendar.getInstance()
         internal set
@@ -94,7 +93,7 @@ open class DatePickerOption {
         this.selected = selected ?: Calendar.getInstance()
     }
 
-    fun setStyle(@DateStyle style: Int): DatePickerOption {
+    fun setStyle(@DateStyle.Style style: Int): DatePickerOption {
         this.style = style
         return this
     }

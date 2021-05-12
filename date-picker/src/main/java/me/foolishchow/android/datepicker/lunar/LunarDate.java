@@ -7,13 +7,16 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
+
+import me.foolishchow.android.datepicker.data.DateWheelVo;
 
 public class LunarDate {
 
     /**
      * <lunarInfo 数组值的计算原理>
-     *
+     * <p>
      * 0x代表十六进制，后面的五位数是十六进制数。
      * 举个例子: 1980年的数据是 0x095b0
      * 二进制:  0000 1001 0101 1011 0000
@@ -322,6 +325,19 @@ public class LunarDate {
         return years;
     }
 
+    public static List<DateWheelVo> getWheelYears(int startYear, int endYear) {
+        List<DateWheelVo> years = new ArrayList<>();
+        for (int year = startYear; year <= endYear; year++) {
+            years.add(
+                    new DateWheelVo(
+                            String.format("%s(%d)", getLunarYearText(year), year),
+                            year
+                    )
+            );
+        }
+        return years;
+    }
+
     /**
      * 获取year年的所有月份
      *
@@ -339,6 +355,22 @@ public class LunarDate {
         return baseMonths;
     }
 
+    public static List<DateWheelVo> getWheelMonths(int start, int end) {
+        List<DateWheelVo> months = new ArrayList<>();
+        if (end > nStr1.length) {
+            end = nStr1.length;
+        }
+        for (int month = start; month <= end; month++) {
+            months.add(
+                    new DateWheelVo(
+                            nStr1[month] + "月",
+                            month
+                    )
+            );
+        }
+        return months;
+    }
+
     /**
      * 获取每月农历显示名称
      *
@@ -349,6 +381,17 @@ public class LunarDate {
         ArrayList<String> days = new ArrayList<>();
         for (int i = 1; i <= maxDay; i++) {
             days.add(getChinaDate(i));
+        }
+        return days;
+    }
+
+    public static List<DateWheelVo> getWheelDays(int start,int end) {
+        ArrayList<DateWheelVo> days = new ArrayList<>();
+        for (int i = start; i <= end; i++) {
+            days.add(new DateWheelVo(
+                    getChinaDate(i),
+                    i
+            ));
         }
         return days;
     }

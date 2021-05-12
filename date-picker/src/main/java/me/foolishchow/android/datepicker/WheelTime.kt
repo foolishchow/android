@@ -1,11 +1,11 @@
 package me.foolishchow.android.datepicker
 
 import android.view.View
-import androidx.annotation.IntDef
 import com.contrarywind.view.WheelView
-import me.foolishchow.android.datepicker.DateTimeValidator.ValidateResult
-import me.foolishchow.android.datepicker.DateTimeValidator.ValidatedListener
+import me.foolishchow.android.datepicker.validator.ValidateResult
+import me.foolishchow.android.datepicker.validator.ValidatedListener
 import me.foolishchow.android.datepicker.adapters.DateWheelAdapter
+import me.foolishchow.android.datepicker.validator.DateTimeValidator
 import java.util.*
 
 /**
@@ -14,33 +14,24 @@ import java.util.*
  * 2. 控件外部可控 你需要展示什么就初始化什么 不需要的就设置为初始null 不再关心布局
  * 3. 时间range校验流程修改
  */
-class WheelTime : ValidatedListener {
+class WheelTime
+@JvmOverloads
+constructor(
+        private val mYearWheel: WheelView? = null,
+        private val mMonthWheel: WheelView? = null,
+        private val mDayWheel: WheelView? = null,
+        private val mHourWheel: WheelView? = null,
+        private val mMinuteWheel: WheelView? = null,
+        private val mSecondWheel: WheelView? = null
+) : ValidatedListener {
     private val mValidator = DateTimeValidator()
 
     //region 控件
-    private var mYearWheel: WheelView? = null
-    private var mMonthWheel: WheelView? = null
-    private var mDayWheel: WheelView? = null
-    private var mHourWheel: WheelView? = null
-    private var mMinuteWheel: WheelView? = null
-    private var mSecondWheel: WheelView? = null
 
-    @JvmOverloads
-    fun setWheels(
-            year: DateWheelView?, month: DateWheelView?, day: DateWheelView? = null,
-            hour: DateWheelView? = null, minute: DateWheelView? = null, second: DateWheelView? = null
-    ) {
-        mYearWheel = year
-        mMonthWheel = month
-        mDayWheel = day
-        mHourWheel = hour
-        mMinuteWheel = minute
-        mSecondWheel = second
+    init {
+        mValidator.setValidatedListener(this)
     }
 
-    @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
-    @IntDef(STYLE_DATE, STYLE_DATE_TIME, STYLE_YEAR_MONTH, STYLE_DATE_HOUR_MINUTE, STYLE_MOMENT)
-    annotation class DateStyle
 
     private fun toggleVisible(wheelView: WheelView?, isVisible: Boolean) {
         if (wheelView != null) {
@@ -49,23 +40,23 @@ class WheelTime : ValidatedListener {
     }
 
     private val isYearVisible: Boolean
-        get() = mYearWheel != null && DISPLAY_CONFIG[mDateStyle][0]
+        get() = mYearWheel != null && DateStyle.CONFIG[mDateStyle][0]
     private val isMonthVisible: Boolean
-        get() = mMonthWheel != null && DISPLAY_CONFIG[mDateStyle][1]
+        get() = mMonthWheel != null && DateStyle.CONFIG[mDateStyle][1]
     private val isDayVisible: Boolean
-        get() = mDayWheel != null && DISPLAY_CONFIG[mDateStyle][2]
+        get() = mDayWheel != null && DateStyle.CONFIG[mDateStyle][2]
     private val isHourVisible: Boolean
-        get() = mHourWheel != null && DISPLAY_CONFIG[mDateStyle][3]
+        get() = mHourWheel != null && DateStyle.CONFIG[mDateStyle][3]
     private val isMinuteVisible: Boolean
-        get() = mMinuteWheel != null && DISPLAY_CONFIG[mDateStyle][4]
+        get() = mMinuteWheel != null && DateStyle.CONFIG[mDateStyle][4]
     private val isSecondVisible: Boolean
-        get() = mSecondWheel != null && DISPLAY_CONFIG[mDateStyle][5]
+        get() = mSecondWheel != null && DateStyle.CONFIG[mDateStyle][5]
 
-    @DateStyle
-    private var mDateStyle = STYLE_DATE
-    fun setStyle(@DateStyle style: Int) {
+    @DateStyle.Style
+    private var mDateStyle = DateStyle.STYLE_DATE
+    fun setStyle(@DateStyle.Style style: Int) {
         mDateStyle = style
-        val displayConfig = DISPLAY_CONFIG[mDateStyle]
+        val displayConfig = DateStyle.CONFIG[mDateStyle]
         toggleVisible(mYearWheel, displayConfig[0])
         initYearWheel()
         toggleVisible(mMonthWheel, displayConfig[1])
@@ -200,7 +191,7 @@ class WheelTime : ValidatedListener {
     }
 
     fun setRangDate(startDate: Calendar, endDate: Calendar) {
-        mValidator.setRangDate(startDate, endDate)
+        mValidator.setRangeDate(startDate, endDate)
     }
 
     //region callback
@@ -219,25 +210,5 @@ class WheelTime : ValidatedListener {
     val time: Date
         get() = mValidator.time
 
-    companion object {
-        //endregion
-        //region 展示类型
-        val DISPLAY_CONFIG = arrayOf(
-                booleanArrayOf(true, true, true, false, false, false),
-                booleanArrayOf(true, true, true, true, true, true),
-                booleanArrayOf(true, true, false, false, false, false),
-                booleanArrayOf(true, true, true, true, true, false),
-                booleanArrayOf(false, false, false, true, true, false)
-        )
 
-        const val STYLE_DATE = 0
-        const val STYLE_DATE_TIME = 1
-        const val STYLE_YEAR_MONTH = 2
-        const val STYLE_DATE_HOUR_MINUTE = 3
-        const val STYLE_MOMENT = 4
-    }
-
-    init {
-        mValidator.setValidatedListener(this)
-    }
 }
