@@ -1,299 +1,243 @@
-package me.foolishchow.android.datepicker;
+package me.foolishchow.android.datepicker
 
-import android.view.View;
-
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.contrarywind.listener.OnItemSelectedListener;
-import com.contrarywind.view.WheelView;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.Calendar;
-import java.util.Date;
-
-import me.foolishchow.android.datepicker.adapters.DateWheelAdapter;
-import me.foolishchow.android.datepicker.data.DateWheelVo;
+import android.view.View
+import androidx.annotation.IntDef
+import com.contrarywind.view.WheelView
+import me.foolishchow.android.datepicker.DateTimeValidator.ValidateResult
+import me.foolishchow.android.datepicker.DateTimeValidator.ValidatedListener
+import me.foolishchow.android.datepicker.adapters.DateWheelAdapter
+import java.util.*
 
 /**
  * 对比原版 WheelTime 主要改变的几个点
- * 1. 数据校验不在此处进行 全部交由{@link me.foolishchow.android.datepicker.options.DatePickerOption} 处理 所有的数据都确保是validated
+ * 1. 数据校验不在此处进行 全部交由[me.foolishchow.android.datepicker.options.DatePickerOption] 处理 所有的数据都确保是validated
  * 2. 控件外部可控 你需要展示什么就初始化什么 不需要的就设置为初始null 不再关心布局
  * 3. 时间range校验流程修改
  */
-public class WheelTime implements DateTimeValidator.ValidatedListener {
-
-
-    private final DateTimeValidator mValidator = new DateTimeValidator();
-
-    public WheelTime() {
-        mValidator.setValidatedListener(this);
-    }
+class WheelTime : ValidatedListener {
+    private val mValidator = DateTimeValidator()
 
     //region 控件
-    @Nullable
-    private WheelView mYearWheel;
-    @Nullable
-    private WheelView mMonthWheel;
-    @Nullable
-    private WheelView mDayWheel;
-    @Nullable
-    private WheelView mHourWheel;
-    @Nullable
-    private WheelView mMinuteWheel;
-    @Nullable
-    private WheelView mSecondWheel;
+    private var mYearWheel: WheelView? = null
+    private var mMonthWheel: WheelView? = null
+    private var mDayWheel: WheelView? = null
+    private var mHourWheel: WheelView? = null
+    private var mMinuteWheel: WheelView? = null
+    private var mSecondWheel: WheelView? = null
 
-    public void setWheels(
-            @Nullable DateWheelView year, @Nullable DateWheelView month, @Nullable DateWheelView day,
-            @Nullable DateWheelView hour, @Nullable DateWheelView minute, @Nullable DateWheelView second
+    @JvmOverloads
+    fun setWheels(
+            year: DateWheelView?, month: DateWheelView?, day: DateWheelView? = null,
+            hour: DateWheelView? = null, minute: DateWheelView? = null, second: DateWheelView? = null
     ) {
-        mYearWheel = year;
-        mMonthWheel = month;
-        mDayWheel = day;
-        mHourWheel = hour;
-        mMinuteWheel = minute;
-        mSecondWheel = second;
-    }
-    //endregion
-
-    //region 展示类型
-    private static final boolean[][] DISPLAY_CONFIG = {
-            {true, true, true, false, false, false},//STYLE_DATE
-            {true, true, true, true, true, true},//STYLE_DATE_TIME
-            {true, true, false, false, false, false},//STYLE_YEAR_MONTH
-            {true, true, true, true, true, false},// STYLE_DATE_HOUR_MINUTE
-            {false, false, false, true, true, false},//STYLE_MOMENT Hour Minute
-    };
-
-    public final static int STYLE_DATE = 0;
-    public final static int STYLE_DATE_TIME = 1;
-    public final static int STYLE_YEAR_MONTH = 2;
-    public final static int STYLE_DATE_HOUR_MINUTE = 3;
-    public final static int STYLE_MOMENT = 4;
-
-
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({STYLE_DATE, STYLE_DATE_TIME, STYLE_YEAR_MONTH, STYLE_DATE_HOUR_MINUTE, STYLE_MOMENT})
-    public @interface DateStyle {
+        mYearWheel = year
+        mMonthWheel = month
+        mDayWheel = day
+        mHourWheel = hour
+        mMinuteWheel = minute
+        mSecondWheel = second
     }
 
-    private void toggleVisible(@Nullable WheelView wheelView, boolean isVisible) {
+    @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
+    @IntDef(STYLE_DATE, STYLE_DATE_TIME, STYLE_YEAR_MONTH, STYLE_DATE_HOUR_MINUTE, STYLE_MOMENT)
+    annotation class DateStyle
+
+    private fun toggleVisible(wheelView: WheelView?, isVisible: Boolean) {
         if (wheelView != null) {
-            wheelView.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+            wheelView.visibility = if (isVisible) View.VISIBLE else View.GONE
         }
     }
 
-    private boolean isYearInVisible() {
-        return !DISPLAY_CONFIG[mDateStyle][0];
-    }
-
-    private boolean isMonthInVisible() {
-        return !DISPLAY_CONFIG[mDateStyle][1];
-    }
-
-    private boolean isDayInVisible() {
-        return !DISPLAY_CONFIG[mDateStyle][2];
-    }
-
-    private boolean isHourInVisible() {
-        return !DISPLAY_CONFIG[mDateStyle][3];
-    }
-
-    private boolean isMinuteInVisible() {
-        return !DISPLAY_CONFIG[mDateStyle][4];
-    }
-
-    private boolean isSecondInVisible() {
-        return !DISPLAY_CONFIG[mDateStyle][5];
-    }
-
+    private val isYearVisible: Boolean
+        get() = mYearWheel != null && DISPLAY_CONFIG[mDateStyle][0]
+    private val isMonthVisible: Boolean
+        get() = mMonthWheel != null && DISPLAY_CONFIG[mDateStyle][1]
+    private val isDayVisible: Boolean
+        get() = mDayWheel != null && DISPLAY_CONFIG[mDateStyle][2]
+    private val isHourVisible: Boolean
+        get() = mHourWheel != null && DISPLAY_CONFIG[mDateStyle][3]
+    private val isMinuteVisible: Boolean
+        get() = mMinuteWheel != null && DISPLAY_CONFIG[mDateStyle][4]
+    private val isSecondVisible: Boolean
+        get() = mSecondWheel != null && DISPLAY_CONFIG[mDateStyle][5]
 
     @DateStyle
-    private int mDateStyle = STYLE_DATE;
-
-    public void setStyle(@DateStyle int style) {
-        mDateStyle = style;
-        boolean[] displayConfig = DISPLAY_CONFIG[mDateStyle];
-        toggleVisible(mYearWheel, displayConfig[0]);
-        initYearWheel();
-        toggleVisible(mMonthWheel, displayConfig[1]);
-        initMonthWheel();
-        toggleVisible(mDayWheel, displayConfig[2]);
-        initDayWheel();
-        toggleVisible(mHourWheel, displayConfig[3]);
-        initHourWheel();
-        toggleVisible(mMinuteWheel, displayConfig[4]);
-        initMinuteWheel();
-        toggleVisible(mSecondWheel, displayConfig[5]);
-        initSecondWheel();
+    private var mDateStyle = STYLE_DATE
+    fun setStyle(@DateStyle style: Int) {
+        mDateStyle = style
+        val displayConfig = DISPLAY_CONFIG[mDateStyle]
+        toggleVisible(mYearWheel, displayConfig[0])
+        initYearWheel()
+        toggleVisible(mMonthWheel, displayConfig[1])
+        initMonthWheel()
+        toggleVisible(mDayWheel, displayConfig[2])
+        initDayWheel()
+        toggleVisible(mHourWheel, displayConfig[3])
+        initHourWheel()
+        toggleVisible(mMinuteWheel, displayConfig[4])
+        initMinuteWheel()
+        toggleVisible(mSecondWheel, displayConfig[5])
+        initSecondWheel()
     }
 
-    private final DateWheelAdapter mYearAdapter = new DateWheelAdapter();
-    private final DateWheelAdapter mMonthAdapter = new DateWheelAdapter();
-    private final DateWheelAdapter mDayAdapter = new DateWheelAdapter();
-    private final DateWheelAdapter mHourAdapter = new DateWheelAdapter();
-    private final DateWheelAdapter mMinuteAdapter = new DateWheelAdapter();
-    private final DateWheelAdapter mSecondAdapter = new DateWheelAdapter();
+    private val mYearAdapter = DateWheelAdapter()
+    private val mMonthAdapter = DateWheelAdapter()
+    private val mDayAdapter = DateWheelAdapter()
+    private val mHourAdapter = DateWheelAdapter()
+    private val mMinuteAdapter = DateWheelAdapter()
+    private val mSecondAdapter = DateWheelAdapter()
 
-    private void initYearWheel() {
-        if (isYearInVisible() || mYearWheel == null) return;
-        mYearAdapter.reRange(1970, 2100);
+    private fun initYearWheel() {
+        if (!isYearVisible) return
+        mYearAdapter.reRange(1970, 2100)
         // 年
-        mYearWheel.setAdapter(mYearAdapter);// 设置"年"的显示数据
-        mYearWheel.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(int index) {
-                DateWheelVo item = mYearAdapter.getItem(index);
-                mValidator.YearChange(item.value);
-            }
-        });
+        mYearWheel!!.adapter = mYearAdapter // 设置"年"的显示数据
+        mYearWheel!!.setOnItemSelectedListener { index ->
+            val item = mYearAdapter.getItem(index)
+            mValidator.YearChange(item.value)
+        }
     }
 
-    private void initMonthWheel() {
-        if (isMonthInVisible() || mMonthWheel == null) return;
-        mMonthAdapter.reRange(1, 12);
-        mMonthWheel.setAdapter(mMonthAdapter);
+    private fun initMonthWheel() {
+        if (!isMonthVisible) return
+        mMonthAdapter.reRange(1, 12)
+        mMonthWheel!!.adapter = mMonthAdapter
         // 添加"月"监听
-        mMonthWheel.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(int index) {
-                DateWheelVo item = mMonthAdapter.getItem(index);
-                mValidator.MonthChange(item.value);
-            }
-        });
+        mMonthWheel!!.setOnItemSelectedListener { index ->
+            val item = mMonthAdapter.getItem(index)
+            mValidator.MonthChange(item.value)
+        }
     }
 
-    private void initDayWheel() {
-        if (isDayInVisible() || mDayWheel == null) return;
-        mDayAdapter.reRange(1, 31);
-        mDayWheel.setAdapter(mDayAdapter);
-        mDayWheel.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(int index) {
-                DateWheelVo item = mDayAdapter.getItem(index);
-                mValidator.DayChange(item.value);
-            }
-        });
+    private fun initDayWheel() {
+        if (!isDayVisible) return
+        mDayAdapter.reRange(1, 31)
+        mDayWheel!!.adapter = mDayAdapter
+        mDayWheel!!.setOnItemSelectedListener { index ->
+            val item = mDayAdapter.getItem(index)
+            mValidator.DayChange(item.value)
+        }
     }
 
-    private void initHourWheel() {
-        if (isHourInVisible() || mHourWheel == null) return;
-        mHourAdapter.reRange(1, 24);
-        mHourWheel.setAdapter(mHourAdapter);
-        mHourWheel.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(int index) {
-                DateWheelVo item = mHourAdapter.getItem(index);
-                mValidator.HourChange(item.value);
-            }
-        });
+    private fun initHourWheel() {
+        if (!isHourVisible) return
+        mHourAdapter.reRange(1, 24)
+        mHourWheel!!.adapter = mHourAdapter
+        mHourWheel!!.setOnItemSelectedListener { index ->
+            val item = mHourAdapter.getItem(index)
+            mValidator.HourChange(item.value)
+        }
     }
 
-    private void initMinuteWheel() {
-        if (isMinuteInVisible() || mMinuteWheel == null) return;
-        mMinuteAdapter.reRange(1, 60);
-        mMinuteWheel.setAdapter(mMinuteAdapter);
-        mMinuteWheel.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(int index) {
-                DateWheelVo item = mMinuteAdapter.getItem(index);
-                mValidator.MinuteChange(item.value);
-            }
-        });
+    private fun initMinuteWheel() {
+        if (!isMinuteVisible) return
+        mMinuteAdapter.reRange(1, 60)
+        mMinuteWheel!!.adapter = mMinuteAdapter
+        mMinuteWheel!!.setOnItemSelectedListener { index ->
+            val item = mMinuteAdapter.getItem(index)
+            mValidator.MinuteChange(item.value)
+        }
     }
 
-    private void initSecondWheel() {
-        if (isSecondInVisible() || mSecondWheel == null) return;
-        mSecondAdapter.reRange(1, 60);
-        mSecondWheel.setAdapter(mSecondAdapter);
-        mSecondWheel.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(int index) {
-                DateWheelVo item = mSecondAdapter.getItem(index);
-                mValidator.SecondChange(item.value);
-            }
-        });
+    private fun initSecondWheel() {
+        if (!isSecondVisible) return
+        mSecondAdapter.reRange(1, 60)
+        mSecondWheel!!.adapter = mSecondAdapter
+        mSecondWheel!!.setOnItemSelectedListener { index ->
+            val item = mSecondAdapter.getItem(index)
+            mValidator.SecondChange(item.value)
+        }
     }
+
     //endregion
-
-
     //region 数据
-    public void setSelected(Calendar calendar) {
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        int second = calendar.get(Calendar.SECOND);
-        mValidator.setSelected(year, month, day, hour, minute, second);
+    fun setSelected(calendar: Calendar) {
+        val year = calendar[Calendar.YEAR]
+        val month = calendar[Calendar.MONTH] + 1
+        val day = calendar[Calendar.DAY_OF_MONTH]
+        val hour = calendar[Calendar.HOUR_OF_DAY]
+        val minute = calendar[Calendar.MINUTE]
+        val second = calendar[Calendar.SECOND]
+        mValidator.setSelected(year, month, day, hour, minute, second)
     }
-    //endregion
 
+    //endregion
     //region 事件监听
-
     //endregion
-
-    @Override
-    public void onDateTimeValidated(
-            @NonNull DateTimeValidator.ValidateResult year,
-            @NonNull DateTimeValidator.ValidateResult month,
-            @NonNull DateTimeValidator.ValidateResult dayOfMonth,
-            @NonNull DateTimeValidator.ValidateResult hourOfDay,
-            @NonNull DateTimeValidator.ValidateResult minute,
-            @NonNull DateTimeValidator.ValidateResult second
+    override fun onDateTimeValidated(
+            year: ValidateResult,
+            month: ValidateResult,
+            dayOfMonth: ValidateResult,
+            hourOfDay: ValidateResult,
+            minute: ValidateResult,
+            second: ValidateResult
     ) {
-        if(!isYearInVisible() && mYearWheel != null){
-            mYearAdapter.reRange(year.rangeStart,year.rangeEnd);
-            mYearWheel.setCurrentItem(mYearAdapter.getItemIndex(year.current));
+        if (isYearVisible) {
+            mYearAdapter.reRange(year.rangeStart, year.rangeEnd)
+            mYearWheel!!.currentItem = mYearAdapter.getItemIndex(year.current)
         }
-        if(!isMonthInVisible() && mMonthWheel != null){
-            mMonthAdapter.reRange(month.rangeStart,month.rangeEnd);
-            mMonthWheel.setCurrentItem(mMonthAdapter.getItemIndex(month.current));
+        if (isMonthVisible) {
+            mMonthAdapter.reRange(month.rangeStart, month.rangeEnd)
+            mMonthWheel!!.currentItem = mMonthAdapter.getItemIndex(month.current)
         }
-        if(!isDayInVisible() && mDayWheel != null){
-            mDayAdapter.reRange(dayOfMonth.rangeStart,dayOfMonth.rangeEnd);
-            mDayWheel.setCurrentItem(mDayAdapter.getItemIndex(dayOfMonth.current));
+        if (isDayVisible) {
+            mDayAdapter.reRange(dayOfMonth.rangeStart, dayOfMonth.rangeEnd)
+            mDayWheel!!.currentItem = mDayAdapter.getItemIndex(dayOfMonth.current)
         }
-        if(!isHourInVisible() && mHourWheel != null){
-            mHourAdapter.reRange(hourOfDay.rangeStart,hourOfDay.rangeEnd);
-            mHourWheel.setCurrentItem(mHourAdapter.getItemIndex(hourOfDay.current));
+        if (isHourVisible) {
+            mHourAdapter.reRange(hourOfDay.rangeStart, hourOfDay.rangeEnd)
+            mHourWheel!!.currentItem = mHourAdapter.getItemIndex(hourOfDay.current)
         }
-        if(!isMinuteInVisible() && mMinuteWheel != null){
-            mMinuteAdapter.reRange(minute.rangeStart,minute.rangeEnd);
-            mMinuteWheel.setCurrentItem(mMinuteAdapter.getItemIndex(minute.current));
+        if (isMinuteVisible) {
+            mMinuteAdapter.reRange(minute.rangeStart, minute.rangeEnd)
+            mMinuteWheel!!.currentItem = mMinuteAdapter.getItemIndex(minute.current)
         }
-        if(!isSecondInVisible() && mSecondWheel != null){
-            mSecondAdapter.reRange(second.rangeStart,second.rangeEnd);
-            mSecondWheel.setCurrentItem(mSecondAdapter.getItemIndex(second.current));
+        if (isSecondVisible) {
+            mSecondAdapter.reRange(second.rangeStart, second.rangeEnd)
+            mSecondWheel!!.currentItem = mSecondAdapter.getItemIndex(second.current)
         }
-        emitTimeChanged();
+        emitTimeChanged()
     }
 
-
-    public void setRangDate(@NonNull Calendar startDate, @NonNull Calendar endDate) {
-        mValidator.setRangDate(startDate, endDate);
+    fun setRangDate(startDate: Calendar, endDate: Calendar) {
+        mValidator.setRangDate(startDate, endDate)
     }
 
     //region callback
-    private OnDatePickerSelectListener mOnDatePickerSelectListener;
-
-    public void setDatePickerSelectListener(OnDatePickerSelectListener listener) {
-        this.mOnDatePickerSelectListener = listener;
+    private var mOnDatePickerSelectListener: OnDatePickerSelectListener? = null
+    fun setDatePickerSelectListener(listener: OnDatePickerSelectListener?) {
+        mOnDatePickerSelectListener = listener
     }
 
-    private void emitTimeChanged() {
+    private fun emitTimeChanged() {
         if (mOnDatePickerSelectListener != null) {
-            mOnDatePickerSelectListener.onDatePickerSelect();
+            mOnDatePickerSelectListener!!.onDatePickerSelect()
         }
     }
-    //endregion
 
-    public Date getTime() {
-        return mValidator.getTime();
+    //endregion
+    val time: Date
+        get() = mValidator.time
+
+    companion object {
+        //endregion
+        //region 展示类型
+        val DISPLAY_CONFIG = arrayOf(
+                booleanArrayOf(true, true, true, false, false, false),
+                booleanArrayOf(true, true, true, true, true, true),
+                booleanArrayOf(true, true, false, false, false, false),
+                booleanArrayOf(true, true, true, true, true, false),
+                booleanArrayOf(false, false, false, true, true, false)
+        )
+
+        const val STYLE_DATE = 0
+        const val STYLE_DATE_TIME = 1
+        const val STYLE_YEAR_MONTH = 2
+        const val STYLE_DATE_HOUR_MINUTE = 3
+        const val STYLE_MOMENT = 4
     }
 
-
+    init {
+        mValidator.setValidatedListener(this)
+    }
 }

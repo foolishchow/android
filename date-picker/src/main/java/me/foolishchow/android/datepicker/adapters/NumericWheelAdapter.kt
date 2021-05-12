@@ -1,49 +1,33 @@
-package me.foolishchow.android.datepicker.adapters;
+package me.foolishchow.android.datepicker.adapters
 
-import com.contrarywind.adapter.WheelAdapter;
+import com.contrarywind.adapter.WheelAdapter
 
 /**
  * Description:
  * Author: foolishchow
  * Date: 18/12/2020 4:30 PM
+ * @param minValue the wheel min value
+ * @param maxValue the wheel max value
  */
-public class NumericWheelAdapter implements WheelAdapter<Integer> {
-
-    private int minValue;
-    private int maxValue;
-
-    /**
-     * Constructor
-     * @param minValue the wheel min value
-     * @param maxValue the wheel max value
-     */
-    public NumericWheelAdapter(int minValue, int maxValue) {
-        this.minValue = minValue;
-        this.maxValue = maxValue;
+class NumericWheelAdapter(
+        private val minValue: Int,
+        private val maxValue: Int
+) : WheelAdapter<Int> {
+    override fun getItem(index: Int): Int {
+        return if (index in 0 until itemsCount) {
+            minValue + index
+        } else 0
     }
 
-    @Override
-    public Integer getItem(int index) {
-        if (index >= 0 && index < getItemsCount()) {
-            int value = minValue + index;
-            return value;
-        }
-        return 0;
-    }
-
-    @Override
-    public int indexOf(Integer o) {
-        try {
-            return (int) o - minValue;
-        } catch (Exception e) {
-            return -1;
+    override fun indexOf(o: Int): Int {
+        return try {
+            o - minValue
+        } catch (e: Throwable) {
+            -1
         }
     }
 
-    @Override
-    public int getItemsCount() {
-        return maxValue - minValue + 1;
+    override fun getItemsCount(): Int {
+        return maxValue - minValue + 1
     }
-
-
 }

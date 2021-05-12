@@ -1,26 +1,18 @@
-package me.foolishchow.android.datepicker.data;
+package me.foolishchow.android.datepicker.data
 
-import androidx.annotation.NonNull;
+import com.contrarywind.interfaces.IPickerViewData
 
-import com.contrarywind.interfaces.IPickerViewData;
-
-public class DateWheelVo implements IPickerViewData {
-    @NonNull
-    public final String label;
-    public final int value;
-
-    public DateWheelVo(String label, int value) {
-        this.label = label;
-        this.value = value;
+open class DateWheelVo(
+        @JvmField
+        open val label: String,
+        @JvmField
+        open val value: Int
+) : IPickerViewData {
+    override fun getPickerViewText(): String {
+        return label
     }
 
-    @Override
-    public String getPickerViewText() {
-        return label;
-    }
-
-    @Override
-    public String toString() {
-        return "DateWheelVo{label='" + label + '\'' + ", value=" + value + '}';
+    override fun toString(): String {
+        return "DateWheelVo{label='$label', value=$value}"
     }
 }

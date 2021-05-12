@@ -1,71 +1,55 @@
-package me.foolishchow.android.datepicker.adapters;
+package me.foolishchow.android.datepicker.adapters
 
-import android.annotation.SuppressLint;
+import android.annotation.SuppressLint
+import com.contrarywind.adapter.WheelAdapter
+import me.foolishchow.android.datepicker.data.DateWheelVo
+import java.util.*
 
-import androidx.annotation.NonNull;
+class DateWheelAdapter
+@JvmOverloads
+constructor(private val formatNumber: Boolean = true)
+    : WheelAdapter<DateWheelVo> {
 
-import com.contrarywind.adapter.WheelAdapter;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import me.foolishchow.android.datepicker.data.DateWheelVo;
-
-public class DateWheelAdapter implements WheelAdapter<DateWheelVo> {
-
-    public static DateWheelVo mDefault = new DateWheelVo("01",0);
-
-    private boolean formatNumber = true;
-
-    public DateWheelAdapter() {
-    }
-
-    public DateWheelAdapter(boolean formatNumber) {
-        this.formatNumber = formatNumber;
-    }
-
-    private int mStart = 0;
-    private int mEnd = 0;
+    private var mStart = 0
+    private var mEnd = 0
 
     @SuppressLint("DefaultLocale")
-    public void reRange(int start, int end) {
-        if(mStart == start && mEnd == end) return;
-        mStart = start;
-        mEnd = end;
-        List<DateWheelVo> list = new ArrayList<>();
-        for (int current = start; current <= end; current++) {
-            if(formatNumber){
-                list.add(new DateWheelVo(String.format("%02d",current), current ));
-            }else {
-                list.add(new DateWheelVo(String.format("%d",current), current ));
+    fun reRange(start: Int, end: Int) {
+        if (mStart == start && mEnd == end) return
+        mStart = start
+        mEnd = end
+        val list: MutableList<DateWheelVo> = ArrayList()
+        for (current in start..end) {
+            if (formatNumber) {
+                list.add(DateWheelVo(String.format("%02d", current), current))
+            } else {
+                list.add(DateWheelVo(String.format("%d", current), current))
             }
         }
-        mList.clear();
-        mList.addAll(list);
+        mList.clear()
+        mList.addAll(list)
     }
 
-    public int getItemIndex(int value){
-        return value - mStart;
+    fun getItemIndex(value: Int): Int {
+        return value - mStart
     }
 
-    @NonNull
-    public final List<DateWheelVo> mList = new ArrayList<>();
-
-    @Override
-    public int getItemsCount() {
-        return mList.size();
+    private val mList = mutableListOf<DateWheelVo>()
+    override fun getItemsCount(): Int {
+        return mList.size
     }
 
-    @Override
-    public DateWheelVo getItem(int index) {
-        if(index < 0 || index >= getItemsCount()){
-            return mDefault;
-        }
-        return mList.get(index);
+    override fun getItem(index: Int): DateWheelVo {
+        return if (index < 0 || index >= itemsCount) {
+            mDefault
+        } else mList[index]
     }
 
-    @Override
-    public int indexOf(DateWheelVo o) {
-        return mList.indexOf(o);
+    override fun indexOf(o: DateWheelVo): Int {
+        return mList.indexOf(o)
+    }
+
+    companion object {
+        var mDefault = DateWheelVo("01", 0)
     }
 }
