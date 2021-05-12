@@ -37,6 +37,8 @@ public class DatePickerActivity extends AppCompatActivity {
         wheelTime.setWheels(
                 viewBind.year, viewBind.month, viewBind.day,
                 viewBind.hour, viewBind.minute, viewBind.second);
+
+
         wheelTime.setRangDate(option.getRangeStart(),option.getRangeEnd());
         wheelTime.setStyle(option.getStyle());
 
