@@ -2,8 +2,6 @@ package me.foolishchow.android.datepicker.lunar
 
 import me.foolishchow.android.datepicker.data.DateWheelVo
 import me.foolishchow.android.datepicker.validator.ValidateResult
-import java.util.*
-import kotlin.math.min
 
 /**
  * Description:
@@ -46,13 +44,18 @@ object LunarUtils {
 
     /**
      * 获取当前年的月份
-     * 如果year为-1 则不考虑闰月的情况
+     * 如果year为-1 则不考虑闰月的情况 返回 1，12
+     * 如果考虑闰月
+     *  有闰月 ->  入 闰2月  变成 1，13
      */
     @JvmOverloads
-    fun getLunarMonths(result: ValidateResult, year: Int = -1): List<DateWheelVo> {
-        return getLunarMonths(result.rangeStart, result.rangeEnd, year)
+    fun getLunarMonths(result: ValidateResult, lunarYear: Int = -1): List<DateWheelVo> {
+        return getLunarMonths(result.rangeStart, result.rangeEnd, lunarYear)
     }
 
+    /**
+     * 如果传入年份
+     */
     fun getLunarMonths(start: Int, end: Int, year: Int = -1): List<DateWheelVo> {
         val leapMonth = if (year == -1) -1 else LunarDate.leapMonth(year)
         val months = mutableListOf<DateWheelVo>()

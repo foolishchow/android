@@ -91,22 +91,22 @@ public class LunarDate {
     /**
      * 传回农历
      *
-     * @param y 年闰哪个月 1-12 , 没闰传回 0
+     * @param lunarYear 年闰哪个月 1-12 , 没闰传回 0
      * @return 农历
      */
-    public static int leapMonth(int y) {
-        return (int) (lunarInfo[y - 1900] & 0xf);
+    public static int leapMonth(int lunarYear) {
+        return (int) (lunarInfo[lunarYear - 1900] & 0xf);
     }
 
     /**
-     * 传回农历 y
+     * 传回农历 lunarYear
      *
-     * @param y y年m月的总天数
-     * @param m y年m月的总天数
+     * @param lunarYear y年m月的总天数
+     * @param lunarMonth y年m月的总天数
      * @return 农历
      */
-    public static int monthDays(int y, int m) {
-        if ((lunarInfo[y - 1900] & (0x10000 >> m)) == 0)
+    public static int monthDays(int lunarYear, int lunarMonth) {
+        if ((lunarInfo[lunarYear - 1900] & (0x10000 >> lunarMonth)) == 0)
             return 29;
         else
             return 30;
@@ -115,11 +115,11 @@ public class LunarDate {
     /**
      * 传回农历
      *
-     * @param y 年的生肖
+     * @param lunarYear 年的生肖
      * @return
      */
-    public static String AnimalsYear(int y) {
-        return Animals[(y - 4) % 12];
+    public static String AnimalsYear(int lunarYear) {
+        return Animals[(lunarYear - 4) % 12];
     }
 
     /**
