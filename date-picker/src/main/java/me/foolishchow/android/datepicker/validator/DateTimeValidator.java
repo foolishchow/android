@@ -7,7 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import me.foolishchow.android.datepicker.Utils;
+import me.foolishchow.android.datepicker.utils.Utils;
 
 public class DateTimeValidator implements IDateValidator{
     private final int[] mRangeStart = new int[]{1990, 1, 1, 0, 0, 0};

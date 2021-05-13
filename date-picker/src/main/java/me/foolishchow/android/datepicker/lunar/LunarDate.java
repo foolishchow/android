@@ -313,7 +313,15 @@ public class LunarDate {
      * 子丑寅卯辰巳无为申酉戌亥
      */
     public static String getLunarYearText(int lunarYear) {
-        return Gan[(lunarYear - 4) % 10] + Zhi[(lunarYear - 4) % 12] + "年";
+        return Gan[(lunarYear - 4) % 10] + Zhi[(lunarYear - 4) % 12];
+    }
+
+    public static String getLunarMonthText(Lunar lunar) {
+        String s = nStr1[lunar.lunarMonth];
+        if (lunar.isLeap) {
+            s = "闰" + s;
+        }
+        return s;
     }
 
 
@@ -321,19 +329,6 @@ public class LunarDate {
         ArrayList<String> years = new ArrayList<>();
         for (int i = startYear; i < endYear; i++) {
             years.add(String.format("%s(%d)", getLunarYearText(i), i));
-        }
-        return years;
-    }
-
-    public static List<DateWheelVo> getWheelYears(int startYear, int endYear) {
-        List<DateWheelVo> years = new ArrayList<>();
-        for (int year = startYear; year <= endYear; year++) {
-            years.add(
-                    new DateWheelVo(
-                            String.format("%s(%d)", getLunarYearText(year), year),
-                            year
-                    )
-            );
         }
         return years;
     }
@@ -355,20 +350,12 @@ public class LunarDate {
         return baseMonths;
     }
 
-    public static List<DateWheelVo> getWheelMonths(int start, int end) {
-        List<DateWheelVo> months = new ArrayList<>();
-        if (end > nStr1.length) {
-            end = nStr1.length;
-        }
-        for (int month = start; month <= end; month++) {
-            months.add(
-                    new DateWheelVo(
-                            nStr1[month] + "月",
-                            month
-                    )
-            );
-        }
-        return months;
+    public static String getLunarMonthText(int month){
+        return nStr1[month];
+    }
+
+    public static int getMonthNameLength(){
+        return nStr1.length;
     }
 
     /**
@@ -385,14 +372,4 @@ public class LunarDate {
         return days;
     }
 
-    public static List<DateWheelVo> getWheelDays(int start,int end) {
-        ArrayList<DateWheelVo> days = new ArrayList<>();
-        for (int i = start; i <= end; i++) {
-            days.add(new DateWheelVo(
-                    getChinaDate(i),
-                    i
-            ));
-        }
-        return days;
-    }
 }

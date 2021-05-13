@@ -6,7 +6,7 @@ import androidx.annotation.Nullable;
 import java.util.Calendar;
 import java.util.Date;
 
-import me.foolishchow.android.datepicker.Utils;
+import me.foolishchow.android.datepicker.utils.Utils;
 
 public abstract class BaseDateValidator {
 

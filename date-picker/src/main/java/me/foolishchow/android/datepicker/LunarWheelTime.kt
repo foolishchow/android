@@ -1,86 +1,15 @@
 package me.foolishchow.android.datepicker
 
-import android.view.View
 import com.contrarywind.view.WheelView
 import me.foolishchow.android.datepicker.adapters.DateWheelAdapter
 import me.foolishchow.android.datepicker.adapters.LunarWheelAdapter
 import me.foolishchow.android.datepicker.lunar.Lunar
-import me.foolishchow.android.datepicker.lunar.LunarDate
+import me.foolishchow.android.datepicker.lunar.LunarUtils
 import me.foolishchow.android.datepicker.options.DatePickerOption
+import me.foolishchow.android.datepicker.options.LunarDatePickerOption
 import me.foolishchow.android.datepicker.validator.*
-import java.util.*
 
-/**
- * Description:
- * Author: foolishchow
- * Date: 2021/05/12 11:12 AM
- */
-
-open class BaseWheelTime<T : IDateValidator>(
-        protected val mYearWheel: WheelView? = null,
-        protected val mMonthWheel: WheelView? = null,
-        protected val mDayWheel: WheelView? = null,
-        protected val mHourWheel: WheelView? = null,
-        protected val mMinuteWheel: WheelView? = null,
-        protected val mSecondWheel: WheelView? = null
-) {
-
-    protected var mOnDatePickerSelectListener: OnDatePickerSelectListener? = null
-    protected lateinit var mValidator: T
-    private fun toggleVisible(wheelView: WheelView?, isVisible: Boolean) {
-        if (wheelView != null) {
-            wheelView.visibility = if (isVisible) View.VISIBLE else View.GONE
-        }
-    }
-
-    protected val isYearVisible: Boolean
-        get() = mYearWheel != null && DateStyle.CONFIG[mDateStyle][0]
-    protected val isMonthVisible: Boolean
-        get() = mMonthWheel != null && DateStyle.CONFIG[mDateStyle][1]
-    protected val isDayVisible: Boolean
-        get() = mDayWheel != null && DateStyle.CONFIG[mDateStyle][2]
-    protected val isHourVisible: Boolean
-        get() = mHourWheel != null && DateStyle.CONFIG[mDateStyle][3]
-    protected val isMinuteVisible: Boolean
-        get() = mMinuteWheel != null && DateStyle.CONFIG[mDateStyle][4]
-    protected val isSecondVisible: Boolean
-        get() = mSecondWheel != null && DateStyle.CONFIG[mDateStyle][5]
-
-    @DateStyle.Style
-    protected var mDateStyle = DateStyle.STYLE_DATE
-    private fun setStyle(@DateStyle.Style style: Int) {
-        mDateStyle = style
-        val displayConfig = DateStyle.CONFIG[mDateStyle]
-        toggleVisible(mYearWheel, displayConfig[0])
-        toggleVisible(mMonthWheel, displayConfig[1])
-        toggleVisible(mDayWheel, displayConfig[2])
-        toggleVisible(mHourWheel, displayConfig[3])
-        toggleVisible(mMinuteWheel, displayConfig[4])
-        toggleVisible(mSecondWheel, displayConfig[5])
-    }
-
-    fun setOption(option: DatePickerOption) {
-        mOnDatePickerSelectListener = option.onDatePickerChangeListener
-        setStyle(option.style)
-        mValidator.setRangeDate(option.rangeStart, option.rangeEnd)
-        setSelected(option.selected)
-    }
-
-
-    private fun setSelected(calendar: Calendar) {
-        val year = calendar[Calendar.YEAR]
-        val month = calendar[Calendar.MONTH] + 1
-        val day = calendar[Calendar.DAY_OF_MONTH]
-        val hour = calendar[Calendar.HOUR_OF_DAY]
-        val minute = calendar[Calendar.MINUTE]
-        val second = calendar[Calendar.SECOND]
-        mValidator.setSelected(year, month, day, hour, minute, second)
-    }
-
-
-}
-
-class LunarWheelTime
+open class LunarWheelTime
 @JvmOverloads
 constructor(
         yearWheel: WheelView? = null,
@@ -93,7 +22,6 @@ constructor(
         yearWheel, monthWheel, dayWheel,
         hourWheel, minuteWheel, secondWheel
 ), ValidatedListener {
-
 
 
     private val mYearAdapter = LunarWheelAdapter()
@@ -150,7 +78,15 @@ constructor(
         }
     }
 
-    fun getTime(): Lunar {
+
+    private var showLeapMonth = true
+    fun setOption(option: LunarDatePickerOption) {
+        showLeapMonth = option.showLeapMonth
+        mValidator.showLeapMonth = option.showLeapMonth
+        super.setOption(option)
+    }
+
+    open fun getTime(): Lunar {
         return mValidator.time
     }
 
@@ -159,23 +95,22 @@ constructor(
             hourOfDay: ValidateResult, minute: ValidateResult, second: ValidateResult
     ) {
         if (isYearVisible) {
-            val rangeChanged = mYearAdapter.rangeChanged(year.rangeStart, year.rangeEnd)
+            val rangeChanged = mYearAdapter.rangeChanged(year)
             if (rangeChanged) {
-                mYearAdapter.reRange(LunarDate.getWheelYears(year.rangeStart, year.rangeEnd))
+                mYearAdapter.reRange(LunarUtils.getLunarYears(year))
             }
             mYearWheel!!.currentItem = mYearAdapter.getItemIndex(year.current)
         }
         if (isMonthVisible) {
-            val rangeChanged = mMonthAdapter.rangeChanged(month.rangeStart, month.rangeEnd)
-            if (rangeChanged) {
-                mMonthAdapter.reRange(LunarDate.getWheelMonths(month.rangeStart, month.rangeEnd))
-            }
+            mMonthAdapter.reRange(LunarUtils.getLunarMonths(
+                    month, if (showLeapMonth) year.current else -1
+            ))
             mMonthWheel!!.currentItem = mMonthAdapter.getItemIndex(month.current)
         }
         if (isDayVisible) {
-            val rangeChanged = mDayAdapter.rangeChanged(dayOfMonth.rangeStart, dayOfMonth.rangeEnd)
+            val rangeChanged = mDayAdapter.rangeChanged(dayOfMonth)
             if (rangeChanged) {
-                mDayAdapter.reRange(LunarDate.getWheelDays(dayOfMonth.rangeStart, dayOfMonth.rangeEnd))
+                mDayAdapter.reRange(LunarUtils.getLunarDays(dayOfMonth))
             }
             mDayWheel!!.currentItem = mDayAdapter.getItemIndex(dayOfMonth.current)
         }

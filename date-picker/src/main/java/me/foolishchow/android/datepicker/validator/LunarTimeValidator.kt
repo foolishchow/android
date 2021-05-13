@@ -1,10 +1,7 @@
 package me.foolishchow.android.datepicker.validator
 
-import me.foolishchow.android.datepicker.Utils
 import me.foolishchow.android.datepicker.lunar.Lunar
 import me.foolishchow.android.datepicker.lunar.LunarDate
-import me.foolishchow.android.datepicker.lunar.LunarSolarConverter
-import me.foolishchow.android.datepicker.lunar.Solar
 import java.util.*
 
 
@@ -14,6 +11,17 @@ import java.util.*
  * Date: 2021/05/12 1:25 PM
  */
 class LunarTimeValidator : IDateValidator {
+
+    private var mShowLeapMonth = true
+    var showLeapMonth: Boolean
+        get() {
+            return mShowLeapMonth
+        }
+        set(value) {
+            if (mShowLeapMonth == value) return
+            mShowLeapMonth = value
+            Validate()
+        }
 
     private val mRangeStart = intArrayOf(1990, 1, 1, 0, 0, 0)
     private val mRangeEnd = intArrayOf(2100, 12, 31, 23, 59, 59)
@@ -27,13 +35,13 @@ class LunarTimeValidator : IDateValidator {
             intArrayOf(0, 59)
     )
 
-    private fun updateDateArray(array: IntArray, calendar: Lunar) {
-        array[0] = calendar.lunarYear
-        array[1] = calendar.lunarMonth
-        array[2] = calendar.lunarDay
-        array[3] = calendar.hour
-        array[4] = calendar.minute
-        array[5] = calendar.second
+    private fun updateDateArray(array: IntArray, lunar: Lunar) {
+        array[0] = lunar.lunarYear
+        array[1] = if (mShowLeapMonth) lunar.getMonthWithLeap() else lunar.lunarMonth
+        array[2] = lunar.lunarDay
+        array[3] = lunar.hour
+        array[4] = lunar.minute
+        array[5] = lunar.second
     }
 
     override fun setRangeDate(startDate: Calendar, endDate: Calendar) {
@@ -48,9 +56,7 @@ class LunarTimeValidator : IDateValidator {
             year: Int, month: Int, dayOfMonth: Int,
             hourOfDay: Int, minute: Int, second: Int
     ) {
-
-        val lunar = LunarSolarConverter.SolarToLunar(Solar(year, month, dayOfMonth))
-        lunar.setTime(hourOfDay, minute, second)
+        val lunar = Lunar.from(year, month, dayOfMonth, hourOfDay, minute, second)
         updateDateArray(mSelected, lunar)
         Validate()
     }
@@ -64,9 +70,14 @@ class LunarTimeValidator : IDateValidator {
 
     val time: Lunar
         get() {
-            val lunar = Lunar(mSelected[0], mSelected[1], mSelected[2])
-            lunar.setTime(mSelected[3], mSelected[4], mSelected[5])
-            return lunar
+            return if (mShowLeapMonth) {
+                val lunar = Lunar.fromLunarWithLeap(mSelected[0], mSelected[1], mSelected[2])
+                lunar.setTime(mSelected[3], mSelected[4], mSelected[5])
+                lunar
+            } else {
+                Lunar.from(mSelected[0], mSelected[1], mSelected[2], mSelected[3], mSelected[4], mSelected[5])
+            }
+
         }
 
     fun YearChange(year: Int) {
@@ -107,7 +118,8 @@ class LunarTimeValidator : IDateValidator {
         var minute = mSelected[4]
         val second = mSelected[5]
 
-        val monthRange = intArrayOf(1, 12)
+        val leapMonth = LunarDate.leapMonth(year)
+        val monthRange = if (leapMonth == 0) intArrayOf(1, 12) else intArrayOf(1, 13)
         if (year == mRangeStart[0]) {
             monthRange[0] = mRangeStart[1]
         }
@@ -198,6 +210,13 @@ class LunarTimeValidator : IDateValidator {
 
 
     private fun getMonthDay(year: Int, month: Int): Int {
+        if (!mShowLeapMonth) {
+            return LunarDate.monthDays(year, month)
+        }
+        val leapMonth = LunarDate.leapMonth(year)
+        if (leapMonth != 0 && leapMonth == month - 1) {
+            return LunarDate.leapDays(year)
+        }
         return LunarDate.monthDays(year, month)
     }
 }

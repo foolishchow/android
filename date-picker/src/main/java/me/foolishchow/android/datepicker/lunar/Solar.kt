@@ -1,18 +1,12 @@
 package me.foolishchow.android.datepicker.lunar
 
-import me.foolishchow.android.datepicker.Utils
+import me.foolishchow.android.datepicker.utils.Utils
 import java.util.*
-
-
-/**
- * https://github.com/isee15/Lunar-Solar-Calendar-Converter
- * Description:
- * Author: foolishchow
- * Date: 2021/05/12 2:08 PM
- */
 
 /**
  * 公历
+ * origin: [Lunar-Solar-Calendar](https://github.com/isee15/Lunar-Solar-Calendar-Converter)
+ * file: [LunarSolarConverter.java](https://github.com/isee15/Lunar-Solar-Calendar-Converter/blob/master/Java/cn/z/Solar.java)
  */
 class Solar
 @JvmOverloads

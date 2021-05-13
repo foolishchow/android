@@ -2,6 +2,7 @@ package me.foolishchow.android.datepicker.adapters
 
 import com.contrarywind.adapter.WheelAdapter
 import me.foolishchow.android.datepicker.data.DateWheelVo
+import me.foolishchow.android.datepicker.validator.ValidateResult
 
 /**
  * Description:
@@ -14,19 +15,28 @@ class LunarWheelAdapter : WheelAdapter<DateWheelVo> {
         return mList.size
     }
 
-    private var start: Int = 0;
-    private var end: Int = 0;
+    private var mStart: Int = 0;
+    private var mEnd: Int = 0;
+
+    fun rangeChanged(result: ValidateResult): Boolean {
+        return rangeChanged(result.rangeStart,result.rangeEnd)
+    }
     fun rangeChanged(from: Int, to: Int): Boolean {
-        if (start != from || to != end) {
-            start = from
-            end = to
+        if (mStart != from || to != mEnd) {
+            mStart = from
+            mEnd = to
             return true
         }
         return false
     }
 
     fun getItemIndex(value: Int): Int {
-        return value - start
+        for ((index, item) in mList.withIndex()) {
+            if (value == item.value) {
+                return index
+            }
+        }
+        return -1
     }
 
     fun reRange(list: List<DateWheelVo>) {

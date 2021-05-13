@@ -1,12 +1,12 @@
 package me.foolishchow.android.datepicker
 
-import android.view.View
 import com.contrarywind.view.WheelView
 import me.foolishchow.android.datepicker.adapters.DateWheelAdapter
 import me.foolishchow.android.datepicker.adapters.LunarWheelAdapter
-import me.foolishchow.android.datepicker.lunar.Lunar
-import me.foolishchow.android.datepicker.lunar.LunarDate
+import me.foolishchow.android.datepicker.data.DateWheelVo
+import me.foolishchow.android.datepicker.lunar.LunarUtils
 import me.foolishchow.android.datepicker.options.DatePickerOption
+import me.foolishchow.android.datepicker.options.LunarDatePickerOption
 import me.foolishchow.android.datepicker.validator.*
 import java.util.*
 
@@ -15,7 +15,6 @@ import java.util.*
  * Author: foolishchow
  * Date: 2021/05/12 11:12 AM
  */
-
 class SolarLunarWheelTime
 @JvmOverloads
 constructor(
@@ -85,13 +84,25 @@ constructor(
         }
     }
 
+
+    private var showLeapMonth = true
+    fun setOption(option: LunarDatePickerOption) {
+        showLeapMonth = option.showLeapMonth
+        mValidator.setLunarMode(option.showLeapMonth)
+        super.setOption(option)
+    }
+
+    private var forceRefresh = false
     private var mLunarMode = true
     var lunarMode: Boolean
         get() {
             return mLunarMode
         }
         set(value) {
+            if (mLunarMode == value) return
+            forceRefresh = true
             mLunarMode = value
+            mValidator.setLunarMode(value)
         }
 
     fun getTime(): Date {
@@ -103,23 +114,50 @@ constructor(
             hourOfDay: ValidateResult, minute: ValidateResult, second: ValidateResult
     ) {
         if (isYearVisible) {
-            val rangeChanged = mYearAdapter.rangeChanged(year.rangeStart, year.rangeEnd)
-            if (rangeChanged) {
-                mYearAdapter.reRange(LunarDate.getWheelYears(year.rangeStart, year.rangeEnd))
+            val rangeChanged = mYearAdapter.rangeChanged(year)
+            if (rangeChanged || forceRefresh) {
+                if (mLunarMode) {
+                    mYearAdapter.reRange(LunarUtils.getLunarYears(year))
+                } else {
+                    val list: MutableList<DateWheelVo> = ArrayList()
+                    for (current in year.rangeStart..year.rangeEnd) {
+                        list.add(DateWheelVo(String.format("%d", current), current))
+                    }
+                    mYearAdapter.reRange(list)
+                }
             }
             mYearWheel!!.currentItem = mYearAdapter.getItemIndex(year.current)
         }
         if (isMonthVisible) {
-            val rangeChanged = mMonthAdapter.rangeChanged(month.rangeStart, month.rangeEnd)
-            if (rangeChanged) {
-                mMonthAdapter.reRange(LunarDate.getWheelMonths(month.rangeStart, month.rangeEnd))
+            if (mLunarMode) {
+                mMonthAdapter.reRange(LunarUtils.getLunarMonths(
+                        month, if (showLeapMonth) year.current else -1
+                ))
+            } else {
+                val rangeChanged = mMonthAdapter.rangeChanged(month)
+                if (rangeChanged || forceRefresh) {
+                    val list: MutableList<DateWheelVo> = ArrayList()
+                    for (current in month.rangeStart..month.rangeEnd) {
+                        list.add(DateWheelVo(String.format("%02d月", current), current))
+                    }
+                    mMonthAdapter.reRange(list)
+                }
             }
             mMonthWheel!!.currentItem = mMonthAdapter.getItemIndex(month.current)
         }
         if (isDayVisible) {
-            val rangeChanged = mDayAdapter.rangeChanged(dayOfMonth.rangeStart, dayOfMonth.rangeEnd)
-            if (rangeChanged) {
-                mDayAdapter.reRange(LunarDate.getWheelDays(dayOfMonth.rangeStart, dayOfMonth.rangeEnd))
+            val rangeChanged = mDayAdapter.rangeChanged(dayOfMonth)
+            if (rangeChanged || forceRefresh) {
+                if (mLunarMode) {
+                    mDayAdapter.reRange(LunarUtils.getLunarDays(dayOfMonth))
+                } else {
+                    val list: MutableList<DateWheelVo> = ArrayList()
+                    for (current in dayOfMonth.rangeStart..dayOfMonth.rangeEnd) {
+                        list.add(DateWheelVo(String.format("%02d日", current), current))
+                    }
+                    mDayAdapter.reRange(list)
+                }
+
             }
             mDayWheel!!.currentItem = mDayAdapter.getItemIndex(dayOfMonth.current)
         }
@@ -135,6 +173,7 @@ constructor(
             mSecondAdapter.reRange(second.rangeStart, second.rangeEnd)
             mSecondWheel!!.currentItem = mSecondAdapter.getItemIndex(second.current)
         }
+        forceRefresh = false
         mOnDatePickerSelectListener?.onDatePickerSelect()
     }
 
