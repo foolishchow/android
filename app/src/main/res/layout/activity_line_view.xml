@@ -24,6 +24,8 @@
         app:lv_label_width="120dp"
         app:lv_left_icon="@mipmap/line_view_icon_common_search_drak"
         app:lv_right_icon="@mipmap/line_view_icon_common_right"
+        app:lv_right_icon_width="20dp"
+        app:lv_right_icon_height="20dp"
         tools:ignore="PxUsage">
 
         <TextView

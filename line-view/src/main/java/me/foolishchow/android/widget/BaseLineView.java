@@ -84,7 +84,8 @@ public abstract class BaseLineView extends ViewGroup {
     private float mLeftIconHeight;
     private int mLeftIconSrc = -1;
 
-
+    private float mRightIconWidth;
+    private float mRightIconHeight;
     private int mRightIconSrc = -1;
 
     @Nullable
@@ -123,6 +124,10 @@ public abstract class BaseLineView extends ViewGroup {
         mLeftIconHeight = ta.getDimension(R.styleable.BaseLineView_lv_left_icon_height, LayoutParams.WRAP_CONTENT);
         mLeftIconSrc = ta.getResourceId(R.styleable.BaseLineView_lv_left_icon, -1);
 
+        mRightIconWidth = ta.getDimension(R.styleable.BaseLineView_lv_right_icon_width,
+                LayoutParams.WRAP_CONTENT);
+        mRightIconHeight = ta.getDimension(R.styleable.BaseLineView_lv_right_icon_height,
+                LayoutParams.WRAP_CONTENT);
         mRightIconSrc = ta.getResourceId(R.styleable.BaseLineView_lv_right_icon, -1);
 
         mLabelText = ta.getString(R.styleable.BaseLineView_lv_label);
@@ -322,10 +327,13 @@ public abstract class BaseLineView extends ViewGroup {
         int rightIconHeight = 0;
         if (mRightIcon.getVisibility() != GONE) {
             widthSpec = makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
-            //if(mLabelWidth != LayoutParams.WRAP_CONTENT){
-            //    widthSpec = makeMeasureSpec((int) mLabelWidth,MeasureSpec.EXACTLY);
-            //}
+            if (mRightIconWidth != LayoutParams.WRAP_CONTENT) {
+                widthSpec = makeMeasureSpec((int) mRightIconWidth, MeasureSpec.EXACTLY);
+            }
             heightSpec = makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
+            if (mRightIconHeight != LayoutParams.WRAP_CONTENT) {
+                heightSpec = makeMeasureSpec((int) mRightIconHeight, MeasureSpec.EXACTLY);
+            }
             mRightIcon.measure(widthSpec, heightSpec);
             rightIconHeight = mRightIcon.getMeasuredHeight();
             rightIconWidth = mRightIcon.getMeasuredHeight();
@@ -467,11 +475,11 @@ public abstract class BaseLineView extends ViewGroup {
         mRightIcon.setVisibility(VISIBLE);
     }
 
-    public void setRightIconVisibility(int visibility){
+    public void setRightIconVisibility(int visibility) {
         mRightIcon.setVisibility(visibility);
     }
 
-    public void setLeftIconVisibility(int visibility){
+    public void setLeftIconVisibility(int visibility) {
         mLeftIcon.setVisibility(visibility);
     }
 
