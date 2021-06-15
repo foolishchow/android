@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -22,6 +23,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.res.ResourcesCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -116,10 +118,12 @@ public abstract class BaseLineView extends ViewGroup {
     private int mBorderBottomWidth = 0;
     private int mBorderBottomColor = Color.rgb(0xee, 0xee, 0xee);
 
+    private int mLabelFontId = -1;
 
     private void initAttribute(Context context, @Nullable AttributeSet attrs) {
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.BaseLineView);
 
+        mLabelFontId = ta.getResourceId(R.styleable.BaseLineView_lv_label_font_family,-1);
         mLeftIconWidth = ta.getDimension(R.styleable.BaseLineView_lv_left_icon_width, LayoutParams.WRAP_CONTENT);
         mLeftIconHeight = ta.getDimension(R.styleable.BaseLineView_lv_left_icon_height, LayoutParams.WRAP_CONTENT);
         mLeftIconSrc = ta.getResourceId(R.styleable.BaseLineView_lv_left_icon, -1);
@@ -173,6 +177,14 @@ public abstract class BaseLineView extends ViewGroup {
             mRightIcon.setVisibility(VISIBLE);
         } else {
             mRightIcon.setVisibility(GONE);
+        }
+        if(mLabelFontId != -1){
+            try {
+                Typeface font = ResourcesCompat.getFont(getContext(), mLabelFontId);
+                mLabel.setTypeface(font);
+            }catch (Throwable e){
+
+            }
         }
         mLabel.setTextColor(mLabelTextColor);
         mLabel.setTextSize(TypedValue.COMPLEX_UNIT_PX, mLabelTextSize);

@@ -41,6 +41,7 @@
             <enum name="center" value="1" />
             <enum name="end" value="2" />
         </attr>
+        <attr name="lv_label_font_family" format="reference" />
         <attr name="lv_label_text_size" format="dimension" />
         <attr name="lv_label_color" format="color" />
         <attr name="lv_label_width" format="dimension" />

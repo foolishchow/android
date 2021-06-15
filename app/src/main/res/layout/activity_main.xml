@@ -7,6 +7,13 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <View
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="?android:attr/textColorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        tools:targetApi="lollipop" />
     <Button
         android:text="line-view"
         android:textStyle="bold"
