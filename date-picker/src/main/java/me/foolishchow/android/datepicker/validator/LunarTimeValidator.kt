@@ -214,9 +214,24 @@ class LunarTimeValidator : IDateValidator {
             return LunarDate.monthDays(year, month)
         }
         val leapMonth = LunarDate.leapMonth(year)
-        if (leapMonth != 0 && leapMonth == month - 1) {
-            return LunarDate.leapDays(year)
+        return if (leapMonth == 0) {
+            LunarDate.monthDays(year, month)
+        } else {
+            return when {
+                leapMonth == month - 1 -> {
+                    LunarDate.leapDays(year)
+                }
+                leapMonth >= month -> {
+                    LunarDate.monthDays(year, month)
+                }
+                else -> {
+                    LunarDate.monthDays(year, month - 1)
+                }
+            }
         }
-        return LunarDate.monthDays(year, month)
+//        if (leapMonth != 0 && leapMonth == month - 1) {
+//            return LunarDate.leapDays(year)
+//        }
+//        return LunarDate.monthDays(year, month)
     }
 }
