@@ -85,7 +85,7 @@ open class Lunar {
 
     companion object {
         @JvmStatic
-        fun from(calendar: Calendar): Lunar {
+        fun fromSolar(calendar: Calendar): Lunar {
             val lunar = LunarSolarConverter.SolarToLunar(
                     Solar(
                             calendar.get(Calendar.YEAR),
@@ -100,17 +100,34 @@ open class Lunar {
         }
 
         @JvmStatic
-        fun from(date: Date): Lunar {
+        fun fromSolar(date: Date): Lunar {
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = date.time
-            return from(calendar)
+            return fromSolar(calendar)
+        }
+
+        @JvmOverloads
+        @JvmStatic
+        fun fromSolar(year: Int, month: Int, dayOfMonth: Int, hourOfDay: Int = 0,
+                      minute: Int = 0, second: Int = 0): Lunar {
+            val calendar = Utils.asCalendar(year,month,dayOfMonth,hourOfDay,minute,second)
+            return fromSolar(calendar)
         }
 
 
         @JvmOverloads
         @JvmStatic
-        fun from(year: Int, month: Int, dayOfMonth: Int, hourOfDay: Int = 0, minute: Int = 0, second: Int = 0): Lunar {
-            return from(Utils.asCalendar(year, month, dayOfMonth, hourOfDay, minute, second))
+        fun fromLunarWithOutLeap(
+                year: Int, month: Int, dayOfMonth: Int, hourOfDay: Int = 0,
+                minute: Int = 0, second: Int = 0
+        ): Lunar {
+            val lunar = Lunar()
+            lunar.lunarYear = year
+            lunar.lunarMonth = month
+            lunar.lunarDay = dayOfMonth
+            lunar.isLeap = false
+            lunar.setTime(hourOfDay,minute,second)
+            return lunar//from(Utils.asCalendar(year, month, dayOfMonth, hourOfDay, minute, second))
         }
 
         fun fromLunarWithLeap(year: Int, month: Int, day: Int): Lunar {

@@ -88,6 +88,7 @@ constructor(
     private var showLeapMonth = true
     fun setOption(option: LunarDatePickerOption) {
         showLeapMonth = option.showLeapMonth
+        mValidator.showLeapMonth = showLeapMonth
         mValidator.setLunarMode(option.showLeapMonth)
         super.setOption(option)
     }
@@ -113,6 +114,7 @@ constructor(
             year: ValidateResult, month: ValidateResult, dayOfMonth: ValidateResult,
             hourOfDay: ValidateResult, minute: ValidateResult, second: ValidateResult
     ) {
+
         if (isYearVisible) {
             val rangeChanged = mYearAdapter.rangeChanged(year)
             if (rangeChanged || forceRefresh) {

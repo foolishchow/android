@@ -45,8 +45,8 @@ class LunarTimeValidator : IDateValidator {
     }
 
     override fun setRangeDate(startDate: Calendar, endDate: Calendar) {
-        updateDateArray(mRangeStart, Lunar.from(startDate))
-        updateDateArray(mRangeEnd, Lunar.from(endDate))
+        updateDateArray(mRangeStart, Lunar.fromSolar(startDate))
+        updateDateArray(mRangeEnd, Lunar.fromSolar(endDate))
         mRangeCurrent[0][0] = mRangeStart[0]
         mRangeCurrent[0][1] = mRangeEnd[0]
     }
@@ -56,7 +56,7 @@ class LunarTimeValidator : IDateValidator {
             year: Int, month: Int, dayOfMonth: Int,
             hourOfDay: Int, minute: Int, second: Int
     ) {
-        val lunar = Lunar.from(year, month, dayOfMonth, hourOfDay, minute, second)
+        val lunar = Lunar.fromSolar(year, month, dayOfMonth, hourOfDay, minute, second)
         updateDateArray(mSelected, lunar)
         Validate()
     }
@@ -75,7 +75,7 @@ class LunarTimeValidator : IDateValidator {
                 lunar.setTime(mSelected[3], mSelected[4], mSelected[5])
                 lunar
             } else {
-                Lunar.from(mSelected[0], mSelected[1], mSelected[2], mSelected[3], mSelected[4], mSelected[5])
+                Lunar.fromLunarWithOutLeap(mSelected[0], mSelected[1], mSelected[2], mSelected[3], mSelected[4], mSelected[5])
             }
 
         }
@@ -119,7 +119,12 @@ class LunarTimeValidator : IDateValidator {
         val second = mSelected[5]
 
         val leapMonth = LunarDate.leapMonth(year)
-        val monthRange = if (leapMonth == 0) intArrayOf(1, 12) else intArrayOf(1, 13)
+        val monthRange = if (leapMonth == 0 || !mShowLeapMonth) {
+            intArrayOf(1, 12)
+        } else {
+            intArrayOf(1, 13)
+        }
+
         if (year == mRangeStart[0]) {
             monthRange[0] = mRangeStart[1]
         }
@@ -205,6 +210,7 @@ class LunarTimeValidator : IDateValidator {
         try {
             mValidatedListener?.onDateTimeValidated(list[0]!!, list[1]!!, list[2]!!, list[3]!!, list[4]!!, list[5]!!)
         } catch (ignored: Exception) {
+            ignored.printStackTrace()
         }
     }
 
